@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import frameImg from "../assets/frame.png"
 import Loader from "./Loader"
 import { toast } from "react-hot-toast"
 import ConfirmationModal from './ConformationModal';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { FileUploader } from "react-drag-drop-files";
+import { MdDeleteForever } from "react-icons/md";
+import { Tooltip as ReactTooltip } from "react-tooltip";
+
+
+
+const fileTypes = ["JPG", "JPEG", "PNG"];
 
 
 
@@ -17,13 +23,19 @@ function ImageUploaderWithResponse() {
     const [loading, setLoading] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [responseImage, setResponseImage] = useState(null);
+    const [resetKey, setResetKey] = useState(Date.now());
 
     const handleFileChange = (event) => {
-        setSelectedFile(event.target.files[0]);
+        setSelectedFile(event);
     };
 
     const backHandler=()=>{
         navigate("/")
+    }
+
+    const deleteFileHandler = ()=>{
+        setSelectedFile(null);
+        setResetKey(Date.now()); // Change key to force re-render
     }
 
     const handleUpload = () => {
@@ -91,7 +103,34 @@ function ImageUploaderWithResponse() {
                 
 
                 <div>
-                <input type="file" accept="image/*" onChange={handleFileChange}  className='text-richblack-25' />
+                {/* <input type="file" accept="image/*" onChange={handleFileChange}  className='text-richblack-25' /> */}
+                <div className='text-richblack-25 font-semibold '>
+                    <FileUploader  key={resetKey} 
+                       // React uses the key prop to identify which elements have changed, are added, or are removed. By changing the key prop value, we effectively tell React to recreate the FileUploader component, resetting its internal state, including any labels or other visual indicators.
+                        multiple={false} 
+                        handleChange={handleFileChange} 
+                        name="file" types={fileTypes} 
+                        required={true}
+                        // label="Upload or drop a file right here"
+
+                    />
+                    <div className='flex items-center gap-x-1 mt-1'>
+                        <p className='text-[0.87rem] text-richblack-50 leading-[1.353rem] mb-1'>{selectedFile ? `File uploaded: ${selectedFile.name }` : "no files uploaded yet"}</p>
+
+                        {
+                            selectedFile &&
+                            <div>
+                               <MdDeleteForever onClick={deleteFileHandler} className='text-2xl text-[#FF0000] animate-pulse cursor-pointer' data-tooltip-id="my-tooltip-1"/>
+                               <ReactTooltip
+                                  id="my-tooltip-1"
+                                  place="bottom-start"
+                                  variant="dark"
+                                  content={`Delete the ${selectedFile.name} files`}
+                                />
+                            </div>
+                        }
+                    </div>
+                </div>
 
                 </div>
 
@@ -108,11 +147,11 @@ function ImageUploaderWithResponse() {
                
                 <img 
                 src={image} 
-                alt="Losr Person Image" 
+                alt="Lost Person" 
                 width={558} 
                 height={584} 
                 loading="lazy" 
-                className='absolute -top-4 right-4'
+                className='absolute -top-4 right-4 text-richblack-25'
                 />
 
             </div>

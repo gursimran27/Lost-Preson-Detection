@@ -6,8 +6,11 @@ import { toast } from "react-hot-toast"
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setImage } from '../Slices/imageSlice';
+import { FileUploader } from "react-drag-drop-files";
+import { MdDeleteForever } from "react-icons/md";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
-
+const fileTypes = ["JPG", "JPEG", "PNG"];
 
 function ImageUploader() {
 
@@ -21,6 +24,9 @@ function ImageUploader() {
 
     const [name,setName]=useState("");
 
+    const [selectedFile, setSelectedFile] = useState(null);
+
+    const [resetKey, setResetKey] = useState(Date.now());
 
     function changeHandler(e){
         setName(
@@ -28,13 +34,47 @@ function ImageUploader() {
         )
     }
 
-    const [selectedFile, setSelectedFile] = useState(null);
 
     const handleFileChange = (event) => {
-        setSelectedFile(event.target.files[0]);
-        setPreviewUrl(URL.createObjectURL(event.target.files[0]));
+        setSelectedFile(event);
+        setPreviewUrl(URL.createObjectURL(event));
     };
 
+
+    const deleteFileHandler = ()=>{
+        setSelectedFile(null);
+        setPreviewUrl(null)
+        setResetKey(Date.now()); // Change key to force re-render
+    }
+
+
+    const deleteDataHandler = ()=>{
+        setLoading(true)
+        const toastId = toast.loading("Loading...")
+        fetch('http://localhost:5000/delete', {
+            method: 'GET'
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to delete data');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data); // Handle success response
+            dispatch(setImage(null))
+            sessionStorage.removeItem('imageUrl');
+            toast.success("Data Deleted Successfully")
+            toast.dismiss(toastId)
+            setLoading(false)
+          })
+          .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            toast.error("Error While Uploading")
+            toast.dismiss(toastId)
+            setLoading(false)
+          });
+    }
 
 
 
@@ -43,6 +83,12 @@ function ImageUploader() {
         const toastId = toast.loading("Loading...")
         if (!selectedFile) {
             toast.error("Please select a file to upload.")
+            toast.dismiss(toastId)
+            setLoading(false)
+            return;
+        }   
+        if (!name) {
+            toast.error("Please enter name.")
             toast.dismiss(toastId)
             setLoading(false)
             return;
@@ -73,6 +119,7 @@ function ImageUploader() {
             toast.dismiss(toastId)
             setLoading(false)
             dispatch(setImage(previewUrl))
+            sessionStorage.setItem('imageUrl', JSON.stringify(previewUrl));
             navigate("/test")
         })
         .catch(error => {
@@ -92,6 +139,7 @@ function ImageUploader() {
                 (<Loader/>)
                 :
                 (
+                <div>
                 <div className='flex md:flex-row flex-col-reverse justify-between w-11/12 max-w-[1160px] py-12 mx-auto gap-x-12 gap-y-0 md:items-start items-center'>
             
             
@@ -104,7 +152,7 @@ function ImageUploader() {
                     </p>
 
                     <input 
-                    required
+                   required={true}
                     type="text"
                     value={name}
                     name="name"
@@ -116,15 +164,45 @@ function ImageUploader() {
                 </label>
                 
 
-                <div>
+                {/* <div>
                     <input type="file" accept="image/*" onChange={handleFileChange} className='text-richblack-25 '/>
+                </div> */}
+                <div className='text-richblack-25 font-semibold '>
+                    <FileUploader  key={resetKey} 
+                       // React uses the key prop to identify which elements have changed, are added, or are removed. By changing the key prop value, we effectively tell React to recreate the FileUploader component, resetting its internal state, including any labels or other visual indicators.
+                        multiple={false} 
+                        handleChange={handleFileChange} 
+                        name="file" types={fileTypes} 
+                        required={true}
+                        // label="Upload or drop a file right here"
+
+                    />
+                    <div className='flex items-center gap-x-1 mt-1'>
+                        <p className='text-[0.87rem] text-richblack-50 leading-[1.353rem] mb-1'>{selectedFile ? `File uploaded: ${selectedFile.name }` : "no files uploaded yet"}</p>
+
+                        {
+                            selectedFile &&
+                            <div>
+                               <MdDeleteForever onClick={deleteFileHandler} className='text-2xl text-[#FF0000] animate-pulse cursor-pointer' data-tooltip-id="my-tooltip-1"/>
+                               <ReactTooltip
+                                  id="my-tooltip-1"
+                                  place="bottom-start"
+                                  variant="dark"
+                                 content={`Delete the ${selectedFile.name} files`}
+                                />
+                            </div>
+                        }
+                    </div>
+
+                    
                 </div>
 
-                </div>
 
-                <button className='bg-yellow-50 rounded-[8px] font-medium text-richblack-900 px-[12px] py-[8px] mt-6 animate-pulse hover:animate-none transition-all duration-200 hover:scale-[0.9]' onClick={handleUpload}>
-               Submit
-                </button>
+                </div>
+                    <button className='bg-yellow-50 rounded-[8px] font-medium text-richblack-900 px-[12px] py-[8px] mt-6 animate-pulse hover:animate-none transition-all duration-200 hover:scale-[0.9]' onClick={handleUpload}>
+                Submit
+                    </button>
+
             </div>
 
 
@@ -152,8 +230,15 @@ function ImageUploader() {
             </div>
             
         </div>
+
+                
+        <button className= 'mt-16 mr-12 bg-yellow-50 rounded-[10px] font-medium text-richblack-900 px-[25px] py-[10px] animate-bounce float-right' onClick={deleteDataHandler}>Delete Data</button>
+                    
+        </div>
                 )
             }
+
+
         </>
     );
 }

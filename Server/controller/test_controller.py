@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file, make_response
+from flask import request, jsonify, send_file, make_response
 import os
 from io import BytesIO
 
@@ -9,9 +9,7 @@ from pathlib import Path
 
 import face_recognition
 from PIL import Image, ImageDraw
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import classification_report
-import numpy as np
+
 
 
 

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint
 from controller.test_controller import test
 
 test_bp = Blueprint('test', __name__)

@@ -1,31 +1,17 @@
 from flask import request, jsonify
 import os
 
-
-import argparse
 import pickle
-from collections import Counter
 from pathlib import Path
 
 import face_recognition
-from PIL import Image, ImageDraw
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import classification_report
-import numpy as np
 
-import seaborn as sns
-import matplotlib.pyplot as plt
 
-import re
 
 
 
 
 DEFAULT_ENCODINGS_PATH = Path("output/encodings.pkl")
-
-# Create directories if they don't already exist
-Path("uploads/training").mkdir(exist_ok=True)
-Path("output").mkdir(exist_ok=True)
 
 
 def encode_known_faces(
@@ -58,7 +44,7 @@ def encode_known_faces(
 
 
 def upload_file():
-    UPLOAD_FOLDER = 'uploads'
+    UPLOAD_FOLDER = 'C:/Users/Dell/OneDrive/Desktop/python/Lost-person-detection/Server/uploads/'
     TRAINING_FOLDER = os.path.join(UPLOAD_FOLDER, 'training')
 
     # Ensure the upload and training folders exist
@@ -93,6 +79,7 @@ def upload_file():
 
 
         encodings = encode_known_faces()
+        Path("output").mkdir(exist_ok=True)
         with DEFAULT_ENCODINGS_PATH.open(mode="wb") as f:
             pickle.dump(encodings, f)
 

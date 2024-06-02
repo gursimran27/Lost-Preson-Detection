@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState={
-    image:null,
+    image:sessionStorage.getItem("imageUrl") ? JSON.parse(sessionStorage.getItem("imageUrl")) : null,
 }
 
 const imageSlice= createSlice({

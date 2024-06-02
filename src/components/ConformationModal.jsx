@@ -17,7 +17,7 @@ const ConfirmationModal = ({responseImage,handler}) => {
         <p className="text-2xl font-semibold text-richblack-5 flex w-full justify-center">
             Result
         </p>
-        <img src={responseImage} alt="Response Image" className="w-full h-auto" />
+        <img src={responseImage} alt="Response-img" className="w-full h-auto" />
         <div className='w-full flex justify-center'>
             <button
                 onClick={handler}
