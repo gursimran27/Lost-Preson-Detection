@@ -51,12 +51,13 @@ function ImageUploader() {
     const deleteDataHandler = ()=>{
         setLoading(true)
         const toastId = toast.loading("Loading...")
-        fetch('http://localhost:5000/delete', {
+        fetch('http://localhost:5000/delete/', {
             method: 'GET'
           })
           .then(response => {
             if (!response.ok) {
-              throw new Error('Failed to delete data');
+                
+              throw new Error("Error while deleting");
             }
             return response.json();
           })
@@ -70,7 +71,7 @@ function ImageUploader() {
           })
           .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
-            toast.error("Error While Uploading")
+            toast.error("Error While Deleting")
             toast.dismiss(toastId)
             setLoading(false)
           });

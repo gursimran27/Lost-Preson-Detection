@@ -14,9 +14,9 @@ def delete_directory():
                 shutil.rmtree(directory_path_2)
                 return jsonify({'message': "Directory successfully deleted"}), 200
             else:
-                return jsonify({'message': "Output directory-2 does not exist"}), 404
+                return jsonify({'message': "Output directory-2 does not exist"}), 400
         else:
-            return jsonify({'message': "Output directory-1 does not exist"}), 404
+            return jsonify({'message': "Output directory-1 does not exist"}), 400
     
     except OSError as e:
         return jsonify({'error': f"Error: {e.strerror}"}), 500
